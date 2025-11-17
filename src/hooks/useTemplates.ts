@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { template } from "../types/template";
-import { getTemplates, getTemplatesByRound } from "../api/templates";
+import { createTemplate, deleteTemplate, getTemplates, getTemplatesByRound, updateTemplate } from "../api/templates";
 
 export function useTemplates() {
   return useQuery<template[]>({
@@ -19,3 +19,36 @@ export function useTemplatesByRound(roundId: string) {
   });
 }
 
+export function useCreateTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createTemplate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+    },
+  });
+}
+
+export function useUpdateTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      updateTemplate(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+    },
+  });
+
+}
+export function useDeleteTemplate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteTemplate(id),
+    onSuccess: () => {
+      // Refresh templates list after deletion
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+    },
+  });
+}
