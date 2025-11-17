@@ -160,6 +160,12 @@ function Templates() {
               <option>Follow-up</option>
               <option>Newsletter</option>
             </select>
+             <select className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option>All Rounds</option>
+              <option>Round 1</option>
+              <option>Round 2</option>
+              <option>Round 3</option>
+            </select>
           </div>
           <button
             onClick={() => setIsOpen(true)}
@@ -188,8 +194,16 @@ function Templates() {
               </div>
             </div>
 
-            <div className="border-t pt-4 mb-4  flex flex-row-reverse">
-              <div className="flex text-sm justify-between gap-2.5   text-gray-600 mb-1">
+            <div className="border-t pt-4 mb-4  flex justify-between items-center">
+              <div className="flex text-sm justify-between gap-2  text-gray-600 mb-1">
+                <span>
+                  Category:
+                </span>
+                <span className="inline-block bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">
+                  {template.category}
+                </span>
+              </div>
+              <div className="flex text-sm justify-between gap-2  text-gray-600 mb-1">
                 <span>Created at:</span>
                 <span className="inline-block px-2 py-1 bg-green-100 text-green-700 text-xs rounded">
                   {new Date(template.createdAt).toLocaleDateString("en-US", {
