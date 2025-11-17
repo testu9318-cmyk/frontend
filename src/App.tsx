@@ -1,11 +1,11 @@
 import './App.css'
-import EmailTemplateManager from './test'
+import HomePage from './pages/HomePage.jsx'
 
 function App() {
 
   return (
     <>
-    <EmailTemplateManager />
+    <HomePage />
 
     </>
   )
