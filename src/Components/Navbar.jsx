@@ -1,4 +1,4 @@
-import { Mail, Settings, BarChart3, Users, Calendar } from "lucide-react";
+import { Mail, Settings, BarChart3, Users, Calendar, Users2, MailIcon } from "lucide-react";
 
 function Navbar({ activeTab, setActiveTab }) {
   return (
@@ -34,7 +34,7 @@ function Navbar({ activeTab, setActiveTab }) {
               { id: "dashboard", label: "Dashboard", icon: BarChart3 },
               { id: "users", label: "Users", icon: Users },
               { id: "templates", label: "Templates", icon: Mail },
-              { id: "campaigns", label: "Campaigns", icon: Calendar },
+              { id: "BulkEmail", label: "Bulk Email", icon: MailIcon },
             ].map((tab) => {
               const Icon = tab.icon;
               return (

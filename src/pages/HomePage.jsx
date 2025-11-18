@@ -3,6 +3,7 @@ import Navbar from "../Components/Navbar";
 import EmailTemplateManager from '../test'
 import Templates from "../Components/Templates";
 import EmailDashboard from "../Components/EmailDashboard";
+import BulkCSVUpload from "../Components/BulkCSVUpload";
 
 function HomePage() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -14,7 +15,7 @@ function HomePage() {
         {activeTab === 'dashboard' && <EmailDashboard />}
         {activeTab === 'users' && <EmailTemplateManager />}
         {activeTab === 'templates' && <Templates />}
-        {/* {activeTab === 'campaigns' && <Campaigns />} */}
+        {activeTab === 'BulkEmail' && <BulkCSVUpload />}
       </main>
 
     </div>
