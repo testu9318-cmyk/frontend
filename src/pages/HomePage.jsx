@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Navbar from "../Components/Navbar";
 import EmailTemplateManager from '../test'
 import Templates from "../Components/Templates";
+import EmailDashboard from "../Components/EmailDashboard";
 
 function HomePage() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -10,7 +11,7 @@ function HomePage() {
     <div>
       <Navbar setActiveTab={setActiveTab} activeTab={activeTab} />
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* {activeTab === 'dashboard' && <Dashboard />} */}
+        {activeTab === 'dashboard' && <EmailDashboard />}
         {activeTab === 'users' && <EmailTemplateManager />}
         {activeTab === 'templates' && <Templates />}
         {/* {activeTab === 'campaigns' && <Campaigns />} */}
