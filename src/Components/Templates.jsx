@@ -1,4 +1,4 @@
-import { Search, Plus, Eye, Edit2, Copy, Trash2, CheckCircle } from "lucide-react";
+import { Search, Plus, Eye, Edit2, Copy, Trash2, CheckCircle, Calendar } from "lucide-react";
 import { useCreateTemplate, useDeleteTemplate, useTemplates, useUpdateTemplate } from "../hooks/useTemplates";
 import { useEffect, useState } from "react";
 import { XCircle } from "lucide-react";   
@@ -35,24 +35,58 @@ const customStyles = {
 
 
 function Templates() {
-    const { data: templatesData } = useTemplates();
-    const [modalIsOpen, setIsOpen] = useState(false);
-    const createTemplate = useCreateTemplate();
-    const [copiedId, setCopiedId] = useState(null);
-    const [showPrev,setShowPrev]=useState(false);
-    const [ PreviewTemplatesData ,setPreviewTemplatesData ]=useState([]);
+  const [modalIsOpen, setIsOpen] = useState(false);
+const { mutate: createTemplate } = useCreateTemplate();
+  const [copiedId, setCopiedId] = useState(null);
+  const [showPrev,setShowPrev]=useState(false);
+  const [ PreviewTemplatesData ,setPreviewTemplatesData ]=useState([]);
+  const { mutate: updateTemplateMutate } = useUpdateTemplate();
+  const { mutate: deleteTemplateMutate, isLoading } = useDeleteTemplate();
+  
+  const [activeFilters, setActiveFilters] = useState({
+    name: "",
+    category: "All Categories",
+    roundSearch: "All Rounds",
+    selectedDate: "All time",
+    customStart: "",
+    customEnd: "",
+  });
 
-    const { mutate: updateTemplateMutate } = useUpdateTemplate();
-    const { mutate: deleteTemplateMutate, isLoading } = useDeleteTemplate();
+  const shouldFetch =
+  activeFilters.selectedDate !== "custom" ||
+  (activeFilters.selectedDate === "custom" &&
+    activeFilters.customStart &&
+    activeFilters.customEnd);
 
+  const { data: templatesData } = useTemplates(
+  shouldFetch
+    ? {
+        name: activeFilters.name,
+        category: activeFilters.category,
+        roundSearch: activeFilters.roundSearch,
+        selectedDate: activeFilters.selectedDate,
+        customStart: activeFilters.customStart,
+        customEnd: activeFilters.customEnd,
+      }
+    : null 
+);
+  const handleFilterChange = (key, value) => {
+    setActiveFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
       function afterOpenModal() {
         // references are now sync'd and can be accessed.
         subtitle.style.color = "#f00";
+        reset();
       }
     
       function closeModal() {
         setIsOpen(false);
+        reset();
+        setInitialData(null);
       }
 
       const { register, handleSubmit, reset } = useForm({
@@ -96,8 +130,10 @@ function Templates() {
             },
             {
               onSuccess: () => {
-                toast.success("Template updated!");
+                reset();
+                setInitialData(null);
                 setIsOpen(false);
+                
               },
             }
           );
@@ -105,7 +141,7 @@ function Templates() {
           // Create mode
           createTemplate(data, {
             onSuccess: () => {
-              toast.success("Template created!");
+              reset();
               setIsOpen(false);
             },
           });
@@ -137,6 +173,14 @@ function Templates() {
 };
 ;
 
+  // Example options - you can adjust as needed
+  const dateOptions = [
+    { label: "Today", value: "today" },
+    { label: "Yesterday", value: "yesterday" },
+    { label: "Last 7 Days", value: "last7days" },
+    { label: "Last 30 Days", value: "last30days" },
+    { label: "Custom", value: "custom" },
+  ];
   return (
     <div className="space-y-4">
       {/* Templates Toolbar */}
@@ -152,20 +196,66 @@ function Templates() {
                 type="text"
                 placeholder="Search templates..."
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={activeFilters.name}
+              onChange={(e) => handleFilterChange('name', e.target.value)}
               />
             </div>
-            <select className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select
+              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={activeFilters.category}
+              onChange={(e) => handleFilterChange('category', e.target.value)}
+            >
               <option>All Categories</option>
               <option>Onboarding</option>
               <option>Follow-up</option>
               <option>Newsletter</option>
+              <option>Promotional</option>
+
             </select>
-             <select className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select
+              className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={activeFilters.roundSearch}
+              onChange={(e) => handleFilterChange('roundSearch', e.target.value)}
+              >
               <option>All Rounds</option>
               <option>Round 1</option>
               <option>Round 2</option>
               <option>Round 3</option>
             </select>
+          <div className="relative inline-block">
+          <Calendar size={18} className="absolute left-3 top-3 text-gray-600" />
+          <select
+            value={activeFilters.selectedDate}
+            onChange={(e) => handleFilterChange('selectedDate', e.target.value)}
+            className="pl-8  py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All time</option>
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="last7days">Last 7 Days</option>
+            <option value="last30days">Last 30 Days</option>
+            <option value="custom">Custom</option>
+          </select>
+            {activeFilters.selectedDate === "custom" && (
+              <div className="mt-2 flex gap-2">
+                <input
+                  type="date"
+                  value={activeFilters.customStart}
+                  onChange={(e) => handleFilterChange('customStart', e.target.value)}
+
+                  className="border rounded px-2 py-1"
+                />
+                <input
+                  type="date"
+                  value={activeFilters.customEnd}
+                  onChange={(e) => handleFilterChange('customEnd', e.target.value)}
+                  className="border rounded px-2 py-1"
+                />
+              </div>
+            )}
+        </div>
+
+
           </div>
           <button
             onClick={() => setIsOpen(true)}
@@ -175,6 +265,59 @@ function Templates() {
             New Template
           </button>
         </div>
+        {(activeFilters.name || activeFilters.category !== 'All Categories' || activeFilters.roundSearch !== 'All Rounds' || activeFilters.selectedDate !== 'All time') && (
+  <div className="flex gap-2 mt-3 pt-3 border-t">
+    <span className="text-sm text-gray-600 font-medium">Active Filters:</span>
+
+    {activeFilters.name && (
+      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium flex items-center gap-1">
+        Name: {activeFilters.name}
+        <button
+          onClick={() => handleFilterChange('name', '')}
+          className="hover:bg-blue-200 rounded-full p-0.5"
+        >
+          X
+        </button>
+      </span>
+    )}
+
+    {activeFilters.category && activeFilters.category !== 'All Categories' && (
+      <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium flex items-center gap-1">
+        Category: {activeFilters.category}
+        <button
+          onClick={() => handleFilterChange('category', 'All Categories')}
+          className="hover:bg-purple-200 rounded-full p-0.5"
+        >
+          X
+        </button>
+      </span>
+    )}
+
+    {activeFilters.roundSearch && activeFilters.roundSearch !== 'All Rounds' && (
+      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
+        Round: {activeFilters.roundSearch}
+        <button
+          onClick={() => handleFilterChange('roundSearch', 'All Rounds')}
+          className="hover:bg-green-200 rounded-full p-0.5"
+        >
+          X
+        </button>
+      </span>
+    )}
+        {activeFilters.selectedDate && activeFilters.selectedDate !== 'All time' && (
+      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium flex items-center gap-1">
+              Date: {activeFilters.selectedDate}
+              <button
+                onClick={() => handleFilterChange('selectedDate', 'All time')}
+                className="hover:bg-green-200 rounded-full p-0.5"
+              >
+                X
+              </button>
+            </span>
+          )}
+        </div>
+)}
+
       </div>
 
       {/* Templates Grid */}
@@ -196,9 +339,7 @@ function Templates() {
 
             <div className="border-t pt-4 mb-4  flex justify-between items-center">
               <div className="flex text-sm justify-between gap-2  text-gray-600 mb-1">
-                <span>
-                  Category:
-                </span>
+                <span>Category:</span>
                 <span className="inline-block bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">
                   {template.category}
                 </span>
@@ -216,7 +357,12 @@ function Templates() {
             </div>
 
             <div className="flex gap-2">
-              <button className="flex-1  border rounded hover:bg-gray-50 flex items-center justify-center gap-2 text-sm" onClick={()=>{setShowPrev(true),setPreviewTemplatesData([template])}}>
+              <button
+                className="flex-1  border rounded hover:bg-gray-50 flex items-center justify-center gap-2 text-sm"
+                onClick={() => {
+                  setShowPrev(true), setPreviewTemplatesData([template]);
+                }}
+              >
                 <Eye size={16} />
                 Preview
               </button>
@@ -241,7 +387,10 @@ function Templates() {
                   {copiedId === template._id ? "Copied!" : "Copy"}
                 </span>
               </button>
-              <button className="px-3 py-2 border border-red-200 rounded hover:bg-red-50 text-red-600 flex items-center justify-center" onClick={()=> handleDelete(template._id)}>
+              <button
+                className="px-3 py-2 border border-red-200 rounded hover:bg-red-50 text-red-600 flex items-center justify-center"
+                onClick={() => handleDelete(template._id)}
+              >
                 <Trash2 size={16} />
               </button>
             </div>
@@ -356,9 +505,13 @@ function Templates() {
           </form>
         </Modal>
       }
-      {
-      showPrev && <PreviewTemplates PreviewTemplatesData={PreviewTemplatesData} setShowPrev={setShowPrev} OnEditTEmplates={OnEditTEmplates}/>
-      }
+      {showPrev && (
+        <PreviewTemplates
+          PreviewTemplatesData={PreviewTemplatesData}
+          setShowPrev={setShowPrev}
+          OnEditTEmplates={OnEditTEmplates}
+        />
+      )}
     </div>
   );
   

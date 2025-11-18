@@ -1,15 +1,36 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { template } from "../types/template";
-import { createTemplate, deleteTemplate, getTemplates, getTemplatesByRound, updateTemplate } from "../api/templates";
+import { createTemplate, deleteTemplate, getSentEmailCount, getTemplates, getTemplatesByRound, getTotalEmail, updateTemplate } from "../api/templates";
 
-export function useTemplates() {
+export function useTemplates(filters: {
+  name: string;
+  category: string;
+  roundSearch: string;
+  selectedDate: string;
+  customStart?: string;
+  customEnd?: string;
+}) {
   return useQuery<template[]>({
-    queryKey: ["templates"],
-    queryFn: getTemplates,
+    queryKey: ["templates", filters], // refetch when filters change
+    queryFn: () => getTemplates(filters),
   });
 }
 
+export function useTotalEmail() {
+  return useQuery({
+    queryKey: ["totalemail"],  
+    queryFn: () => getTotalEmail(),
 
+  });
+};
+
+export function useSentEmailCount() {
+  return useQuery({
+    queryKey: ["sentemail"],  
+    queryFn: () => getSentEmailCount(),
+
+  });
+};
 
 export function useTemplatesByRound(roundId: string) {
   return useQuery({
@@ -36,7 +57,7 @@ export function useUpdateTemplate() {
     mutationFn: ({ id, payload }: { id: string; payload: any }) =>
       updateTemplate(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      queryClient.invalidateQueries({ queryKey: ["templates","totalemail"] });
     },
   });
 
@@ -48,7 +69,7 @@ export function useDeleteTemplate() {
     mutationFn: (id: string) => deleteTemplate(id),
     onSuccess: () => {
       // Refresh templates list after deletion
-      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      queryClient.invalidateQueries({ queryKey: ["templates","totalemail"] });
     },
   });
 }
