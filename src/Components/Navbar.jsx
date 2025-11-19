@@ -1,6 +1,7 @@
 import { Mail, Settings, BarChart3, Users, Calendar, Users2, MailIcon } from "lucide-react";
 
-function Navbar({ activeTab, setActiveTab }) {
+function Navbar({ activeTab, setActiveTab, setShowSettings }) {
+
   return (
     <div className=" bg-gray-100">
       {/* Header */}
@@ -19,7 +20,9 @@ function Navbar({ activeTab, setActiveTab }) {
               </p>
             </div>
           </div>
-          <button className="px-4 py-2 border rounded-lg hover:bg-gray-50 flex items-center gap-2">
+          <button className="px-4 py-2 border rounded-lg hover:bg-gray-50 flex items-center gap-2"
+          onClick={() => setShowSettings(true)}
+          >
             <Settings size={18} />
             Settings
           </button>
@@ -35,6 +38,7 @@ function Navbar({ activeTab, setActiveTab }) {
               { id: "users", label: "Users", icon: Users },
               { id: "templates", label: "Templates", icon: Mail },
               { id: "BulkEmail", label: "Bulk Email", icon: MailIcon },
+              { id: "CampaignScheduler", label: "Campaign Scheduler", icon: Calendar },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -55,6 +59,7 @@ function Navbar({ activeTab, setActiveTab }) {
           </div>
         </div>
       </nav>
+
     </div>
   );
 }
