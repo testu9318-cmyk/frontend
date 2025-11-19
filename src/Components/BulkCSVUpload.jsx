@@ -13,6 +13,7 @@ import {
   Send,
   Filter,
   Search,
+  XCircle,
 } from "lucide-react";
 import { useTemplates } from "../hooks/useTemplates";
 import { useBulkEmail } from "../hooks/useSendEmails";
