@@ -5,12 +5,36 @@ import {
   ChevronLeft, ChevronRight, Globe, Repeat, ArrowRight, BarChart3,
   Settings, Filter, Search, Download, MoreVertical, Copy, Eye
 } from 'lucide-react';
+import CompaignStep from './compaign/CompaignStep';
 
 export default function CampaignScheduler() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('month'); // month, week, day
+const [activeView, setActiveView] = useState('campaigns'); // 'campaigns', 'calendar', 'recurring', 'workflow'
+  const [showNewCampaign, setShowNewCampaign] = useState(false);
+  const [campaignStep, setCampaignStep] = useState(1); // 1: Type, 2: Details, 3: Schedule, 4: Review
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
 
+  // Campaign Form State
+  const [newCampaign, setNewCampaign] = useState({
+    type: 'one-time',
+    name: '',
+    subject: '',
+    template: '',
+    recipients: '',
+    date: '',
+    time: '',
+    timezone: 'UTC'
+  });
+
+  // Sample Data
+
+
+
+ 
   // Sample data
   const campaigns = [
     { 
@@ -356,7 +380,9 @@ export default function CampaignScheduler() {
             <option>Recurring</option>
           </select>
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2">
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2"
+      onClick={() => setShowNewCampaign(true)}
+>
           <Plus size={18} />
           New Campaign
         </button>
@@ -789,7 +815,13 @@ export default function CampaignScheduler() {
         {activeTab === 'recurring' && renderRecurring()}
         {activeTab === 'workflow' && renderWorkflow()}
       </div>
-    </div>
+      {
+      showNewCampaign && (
+        <CompaignStep setShowNewCampaign={setShowNewCampaign} setCampaignStep={setCampaignStep} campaignStep={campaignStep}  setNewCampaign={setNewCampaign} newCampaign={newCampaign}/>
+      )
+    }
 
+    </div>
+   
   );
 }
