@@ -9,7 +9,9 @@ function Navbar({ activeTab, setActiveTab, setShowSettings }) {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-blue-600 p-2 rounded-lg">
-              <Mail className="text-white" size={28} />
+              <Mail     className="animate-bounce text-white"
+            style={{ animationDuration: '0.5s' }}
+               size={28} />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
@@ -20,12 +22,22 @@ function Navbar({ activeTab, setActiveTab, setShowSettings }) {
               </p>
             </div>
           </div>
-          <button className="px-4 py-2 border rounded-lg hover:bg-gray-50 flex items-center gap-2"
-          onClick={() => setShowSettings(true)}
-          >
-            <Settings size={18} />
-            Settings
-          </button>
+<button 
+  className="px-4 py-2 border rounded-lg hover:bg-gray-50 flex items-center gap-2"
+  onClick={() => setShowSettings(true)}
+>
+  <Settings 
+    size={18} 
+    className="animate-spin"
+    style={{ animationDuration: '1s' }}
+  />
+ <span
+     className="animate-pulse font-medium"
+ 
+ style={{ animationDuration: '1s' }}
+ 
+>Settings</span> 
+</button>
         </div>
       </header>
 

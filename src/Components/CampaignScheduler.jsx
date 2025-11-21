@@ -23,8 +23,8 @@ const [activeView, setActiveView] = useState('campaigns'); // 'campaigns', 'cale
     type: 'one-time',
     name: '',
     subject: '',
-    template: '',
-    recipients: '',
+    templateId: '',
+    recipientSegmentId: '',
     date: '',
     time: '',
     timezone: 'UTC'

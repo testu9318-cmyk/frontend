@@ -1,6 +1,13 @@
 import React from 'react'
-
+import { useWithCount } from "../../hooks/useCompaign";
+import { useTemplates } from '../../hooks/useTemplates';
 function CompaignForm({setCampaignStep,newCampaign,setNewCampaign}) {
+
+
+const { data: withCount, isLoading: loadingWithCount } = useWithCount();
+  const { data: templatesData } = useTemplates();
+
+console.log('templatesData', templatesData)
     const templates = [
     { id: 1, name: 'Welcome Email', category: 'Onboarding' },
     { id: 2, name: 'Newsletter Template', category: 'Newsletter' },
@@ -52,13 +59,13 @@ function CompaignForm({setCampaignStep,newCampaign,setNewCampaign}) {
             Select Template <span className="text-red-500">*</span>
           </label>
           <select
-            value={newCampaign.template}
-            onChange={(e) => setNewCampaign({...newCampaign, template: e.target.value})}
+            value={newCampaign.templateId}
+            onChange={(e) => setNewCampaign({...newCampaign, templateId: e.target.value})}
             className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Choose a template...</option>
-            {templates.map(template => (
-              <option key={template.id} value={template.id}>
+            {templatesData?.map(template => (
+              <option key={template._id} value={template._id}>
                 {template.name} ({template.category})
               </option>
             ))}
@@ -70,14 +77,14 @@ function CompaignForm({setCampaignStep,newCampaign,setNewCampaign}) {
             Select Recipients <span className="text-red-500">*</span>
           </label>
           <select
-            value={newCampaign.recipients}
-            onChange={(e) => setNewCampaign({...newCampaign, recipients: e.target.value})}
+            value={newCampaign.recipientSegmentId}
+            onChange={(e) => setNewCampaign({...newCampaign, recipientSegmentId: e.target.value})}
             className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Choose recipient segment...</option>
-            {segments.map(segment => (
-              <option key={segment.id} value={segment.id}>
-                {segment.name} ({segment.count.toLocaleString()} users)
+            {withCount?.data?.map(segment => (
+              <option key={segment._id} value={segment._id}>
+                {segment.name} ({segment.userCount.toLocaleString()} users)
               </option>
             ))}
           </select>
@@ -107,7 +114,7 @@ function CompaignForm({setCampaignStep,newCampaign,setNewCampaign}) {
         </button>
         <button
           onClick={() => setCampaignStep(3)}
-          disabled={!newCampaign.name || !newCampaign.subject || !newCampaign.template || !newCampaign.recipients}
+          disabled={!newCampaign.name || !newCampaign.subject || !newCampaign.templateId || !newCampaign.recipientSegmentId}
           className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Continue to Schedule

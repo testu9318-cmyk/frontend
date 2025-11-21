@@ -1,7 +1,10 @@
 import { CheckCircle, Clock, Send } from 'lucide-react'
 import React from 'react'
+import { useCreateCampaign } from '../../hooks/useCompaign';
 
 const CompaignReview = ({setNewCampaign,newCampaign,setCampaignStep,setShowNewCampaign}) => {
+
+    const { mutate, isLoading, isSuccess, error } = useCreateCampaign();
 
     const templates = [
     { id: 1, name: 'Welcome Email', category: 'Onboarding' },
@@ -16,18 +19,34 @@ const CompaignReview = ({setNewCampaign,newCampaign,setCampaignStep,setShowNewCa
     { id: 4, name: 'Inactive Users', count: 5234 }
   ];
      const selectedTemplate = templates.find(t => t.id == newCampaign.template);
-    const selectedSegment = segments.find(s => s.id == newCampaign.recipients);
+    const selectedSegment = segments.find(s => s.id == newCampaign.recipientSegmentId);
 
   const handleCreateCampaign = () => {
     console.log('Creating campaign:', newCampaign);
+
+  const payload = {
+    name: newCampaign.name,
+    type: newCampaign.type === "one-time" ? "once" : newCampaign.type,
+    subject: newCampaign.subject,
+    templateId: newCampaign.templateId,
+    recipientSegmentId: newCampaign.recipientSegmentId,
+    sendDate: newCampaign.date,
+    sendTime: newCampaign.time,
+    timezone: newCampaign.timezone || "UTC",
+    status: "scheduled",
+  };
+
+
+  mutate(payload);
+
     setShowNewCampaign(false);
     setCampaignStep(1);
     setNewCampaign({
       type: 'one-time',
       name: '',
       subject: '',
-      template: '',
-      recipients: '',
+      templateId: '',
+      recipientSegmentId: '',
       date: '',
       time: '',
       timezone: 'UTC'
