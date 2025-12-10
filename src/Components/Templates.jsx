@@ -1,4 +1,4 @@
-import { Search, Plus, Eye, Edit2, Copy, Trash2, CheckCircle, Calendar } from "lucide-react";
+import { Search, Plus, Eye, Edit2, Copy, Trash2, CheckCircle, Calendar, Sparkles, Loader2 } from "lucide-react";
 import { useCreateTemplate, useDeleteTemplate, useTemplates, useUpdateTemplate } from "../hooks/useTemplates";
 import { useEffect, useState } from "react";
 import { XCircle } from "lucide-react";   
@@ -42,7 +42,13 @@ const { mutate: createTemplate } = useCreateTemplate();
   const [ PreviewTemplatesData ,setPreviewTemplatesData ]=useState([]);
   const { mutate: updateTemplateMutate } = useUpdateTemplate();
   const { mutate: deleteTemplateMutate, isLoading } = useDeleteTemplate();
-  
+    const [isGenerating, setIsGenerating] = useState(false);
+  const [generationContext, setGenerationContext] = useState({
+    tone: 'professional',
+    purpose: 'follow-up after interview',
+    additionalInfo: ''
+  });  const [showGenerationPanel, setShowGenerationPanel] = useState(false);
+
   const [activeFilters, setActiveFilters] = useState({
     name: "",
     category: "All Categories",
@@ -89,7 +95,7 @@ const { mutate: createTemplate } = useCreateTemplate();
         setInitialData(null);
       }
 
-      const { register, handleSubmit, reset } = useForm({
+      const { register, handleSubmit, reset,getValues } = useForm({
         defaultValues: {
           name: "",
           category: "Onboarding",
@@ -181,6 +187,55 @@ const { mutate: createTemplate } = useCreateTemplate();
     { label: "Last 30 Days", value: "last30days" },
     { label: "Custom", value: "custom" },
   ];
+
+
+  const handleContextChange = (e) => {
+    const { name, value } = e.target;
+    setGenerationContext(prev => ({ ...prev, [name]: value }));
+  };
+
+  const generateEmailContent = async (data) => {
+    setIsGenerating(true);
+    console.log('first')
+    try {
+      // Call your backend endpoint
+      const response = await fetch('http://localhost:5000/api/generate-email-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          templateName: getValues("name"),
+          round: getValues("roundName"),
+          category: getValues("category"),
+          currentSubject: getValues("subject"),
+          tone: generationContext.tone,
+          purpose: generationContext.purpose,
+          additionalInfo: generationContext.additionalInfo
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate content');
+      }
+
+      const data = await response.json();
+      
+      // Update form with generated content
+reset({
+  ...getValues(), // keeps existing form values
+  subject: data.subject || getValues("subject"),
+  body: data.body || getValues("body"),
+});
+
+      setShowGenerationPanel(false);
+      
+    } catch (error) {
+      console.error('Error generating content:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   return (
     <div className="space-y-4">
       {/* Templates Toolbar */}
@@ -472,19 +527,115 @@ const { mutate: createTemplate } = useCreateTemplate();
                   className="w-full px-4 py-2 border rounded-lg"
                 />
               </div>
+            {/* AI Generation Panel */}
+            {showGenerationPanel && (
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-200 space-y-3">
+                <div className="flex items-center gap-2 text-purple-700 font-semibold">
+                  <Sparkles size={20} />
+                  <span>AI Content Generation</span>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Tone</label>
+                  <select
+                    name="tone"
+                    value={generationContext.tone}
+                    onChange={handleContextChange}
+                    className="w-full px-3 py-2 border rounded-lg text-sm"
+                  >
+                    <option value="professional">Professional</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="formal">Formal</option>
+                    <option value="casual">Casual</option>
+                  </select>
+                </div>
 
-              {/* Content */}
-              <div>
-                <label className="block text-sm font-semibold mb-2">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Purpose</label>
+                  <input
+                    name="purpose"
+                    value={generationContext.purpose}
+                    onChange={handleContextChange}
+                    type="text"
+                    placeholder="e.g., follow-up after interview"
+                    className="w-full px-3 py-2 border rounded-lg text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Additional Context (Optional)
+                  </label>
+                  <textarea
+                    name="additionalInfo"
+                    value={generationContext.additionalInfo}
+                    onChange={handleContextChange}
+                    rows={2}
+                    placeholder="Any specific points to include..."
+                    className="w-full px-3 py-2 border rounded-lg text-sm"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={generateEmailContent}
+                    disabled={isGenerating}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} />
+                        Generate Content
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowGenerationPanel(false)}
+                    className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Content */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-semibold">
                   Email Content
                 </label>
-                <textarea
-                  {...register("body", { required: true })}
-                  rows={10}
-                  className="w-full px-4 py-2 border rounded-lg font-mono text-sm"
-                />
+                {!showGenerationPanel && (
+                  <button
+                    type="button"
+                    onClick={() => setShowGenerationPanel(true)}
+                    className="flex items-center gap-1 px-3 py-1 text-sm bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700"
+                  >
+                    <Sparkles size={14} />
+                    Generate with AI
+                  </button>
+                )}
               </div>
+              <textarea
+                name="body"
+                  {...register("body", { required: true })}
+                rows={10}
+                required
+                className="w-full px-4 py-2 border rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Use {{firstName}}, {{email}}, etc. for dynamic values"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Tip: Use double curly braces for variables like {`{{firstName}}`} or {`{{email}}`}
+              </p>
             </div>
+          </div>
 
             <div className="p-6 border-t flex justify-end gap-3">
               <button
