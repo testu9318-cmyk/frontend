@@ -6,6 +6,7 @@ import {
   Settings, Filter, Search, Download, MoreVertical, Copy, Eye
 } from 'lucide-react';
 import CompaignStep from './compaign/CompaignStep';
+import EmailWorkflowBuilder from './compaign/EmailWorkflowBuilder';
 
 export default function CampaignScheduler() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -813,7 +814,7 @@ const [activeView, setActiveView] = useState('campaigns'); // 'campaigns', 'cale
         {activeTab === 'calendar' && renderCalendar()}
         {activeTab === 'campaigns' && renderCampaigns()}
         {activeTab === 'recurring' && renderRecurring()}
-        {activeTab === 'workflow' && renderWorkflow()}
+        {activeTab === 'workflow' && <EmailWorkflowBuilder />}
       </div>
       {
       showNewCampaign && (
