@@ -1,15 +1,28 @@
-import Cookies from "js-cookie";
-import { Navigate } from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { checkAuth } from "../api/client";
 export default function ProtectedRoute({ children }) {
-  // read session cookie
-  const sessionId = Cookies.get("connect.sid");
+  const [loading, setLoading] = useState(true);
+  const [allowed, setAllowed] = useState(false);
+  const navigate = useNavigate();
 
-  // if no session cookie → redirect to login
-  if (!sessionId) {
-    return <Navigate to="/login" replace />;
-  }
+  useEffect(() => {
+    async function verify() {
+      const isLoggedIn = await checkAuth();
 
-  // if session exists → allow page access
-  return children;
+      if (!isLoggedIn) {
+        navigate("/login");
+      } else {
+        setAllowed(true);
+      }
+
+      setLoading(false);
+    }
+
+    verify();
+  }, []);
+
+  if (loading) return <p>Checking authentication...</p>;
+
+  return allowed ? children : null;
 }

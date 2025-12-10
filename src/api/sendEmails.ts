@@ -1,6 +1,7 @@
 export async function sendBulkEmail(payload) {
   const res = await fetch("http://localhost:5000/api/bulk-send", {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },

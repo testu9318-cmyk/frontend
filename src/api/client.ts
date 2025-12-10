@@ -43,14 +43,14 @@ export async function apiFetch<T>(url: string, options: RequestInit = {}): Promi
 
 //  Correct URL
 export async function login(email: string, password: string) {
-    return apiFetch("http://localhost:5000/api/auth/login", {
+    return apiFetch("http://localhost:5000/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password }),
     });
 }
 
 export async function logout() {
-    return apiFetch("http://localhost:5000/api/auth/logout", { // Fixed: added /api
+    return apiFetch("http://localhost:5000/auth/logout", { // Fixed: added /api
         method: "POST",
     });
 }
@@ -78,8 +78,18 @@ export type RegisterResponse = {
 
 // Refactored to use apiFetch for consistency
 export async function registerUser(data: RegisterDto): Promise<RegisterResponse> {
-    return apiFetch("http://localhost:5000/api/auth/register", {
+    return apiFetch("http://localhost:5000/auth/register", {
         method: "POST",
         body: JSON.stringify(data),
     });
+}
+
+
+export async function checkAuth() {
+  const res = await fetch("http://localhost:5000/auth/profile", {
+    method: "GET",
+    credentials: "include", // 
+  });
+
+  return res.status === 200;
 }

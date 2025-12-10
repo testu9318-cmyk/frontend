@@ -1,6 +1,7 @@
 export async function getWithCount() {
-  const res = await fetch("http://localhost:5000/api/with-count");
-
+  const res = await fetch("http://localhost:5000/api/with-count", {
+    credentials: "include", 
+  });
   if (!res.ok) throw new Error("Failed to fetch with-count");
 
   return res.json();
@@ -10,6 +11,7 @@ export async function getWithCount() {
 export async function createCampaign(payload: any) {
   const res = await fetch("http://localhost:5000/api/campaigns", {
     method: "POST",
+     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
